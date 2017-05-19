@@ -77,11 +77,11 @@ export default (state = initialState, action = {}) => {
       }
 
       retVal = (data !== undefined)
-        ? retVal.setIn(['data', ...pathArr], fromJS(data))
+        ? retVal.mergeIn(['data', ...pathArr], fromJS(data))
         : retVal.deleteIn(['data', ...pathArr])
 
       retVal = (ordered !== undefined)
-        ? retVal.setIn(['ordered', ...pathArr], fromJS(ordered))
+        ? retVal.mergeIn(['ordered', ...pathArr], fromJS(ordered))
         : retVal.deleteIn(['ordered', ...pathArr])
 
       retVal = (timestamp !== undefined)
