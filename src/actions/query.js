@@ -85,11 +85,28 @@ export const watchEvent = (firebase, dispatch, { type, path, populates, queryPar
       return q.once('value')
         .then(snapshot => {
           if (snapshot.val() !== null) {
-            dispatch({
-              type: SET,
-              path: storeAs || path,
-              data: snapshot.val()
-            })
+            const resultPath = storeAs || (e === 'value') ? p : `${p}/${snapshot.key}`
+            promisesForPopulate(firebase, snapshot.key, snapshot.val(), populates)
+              .then((results) => {
+                forEach(results, (result, path) => {
+                  dispatch({
+                    type: SET,
+                    path,
+                    data: result,
+                    timestamp: Date.now(),
+                    requesting: false,
+                    requested: true
+                  })
+                })
+                dispatch({
+                  type: SET,
+                  path: storeAs || resultPath,
+                  data: snapshot.val(),
+                  timestamp: Date.now(),
+                  requesting: false,
+                  requested: true
+                })
+              })
           }
           return snapshot
         }, (err) => {
@@ -135,14 +152,6 @@ export const watchEvent = (firebase, dispatch, { type, path, populates, queryPar
       const dataKey = snapshot.key
       promisesForPopulate(firebase, dataKey, data, populates)
         .then((results) => {
-          dispatch({
-            type: SET,
-            path: storeAs || resultPath,
-            data,
-            timestamp: Date.now(),
-            requesting: false,
-            requested: true
-          })
           forEach(results, (result, path) => {
             dispatch({
               type: SET,
@@ -152,6 +161,14 @@ export const watchEvent = (firebase, dispatch, { type, path, populates, queryPar
               requesting: false,
               requested: true
             })
+          })
+          dispatch({
+            type: SET,
+            path: storeAs || resultPath,
+            data,
+            timestamp: Date.now(),
+            requesting: false,
+            requested: true
           })
         })
     }, (err) => {
