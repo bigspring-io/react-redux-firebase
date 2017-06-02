@@ -1,4 +1,5 @@
 import React, { PropTypes, Component } from 'react'
+import { InteractionManager } from 'react-native'
 import { isEqual } from 'lodash'
 import { watchEvents, unWatchEvents } from './actions/query'
 import { getEventsFromInput, createCallable } from './utils'
@@ -54,13 +55,16 @@ export default (dataOrFn = []) => WrappedComponent => {
       this.firebase = { ref, storage, database, auth, ...helpers }
 
       this._firebaseEvents = getEventsFromInput(this.prevData)
-
-      watchEvents(firebase, dispatch, this._firebaseEvents)
+      InteractionManager.runAfterInteractions(() => {
+        watchEvents(firebase, dispatch, this._firebaseEvents)
+      })
     }
 
     componentWillUnmount () {
       const { firebase, dispatch } = this.context.store
-      unWatchEvents(firebase, dispatch, this._firebaseEvents)
+      InteractionManager.runAfterInteractions(() => {
+        unWatchEvents(firebase, dispatch, this._firebaseEvents)
+      })
     }
 
     componentWillReceiveProps (np) {
