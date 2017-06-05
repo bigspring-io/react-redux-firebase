@@ -117,11 +117,11 @@ export default (state = initialState, action = {}) => {
       return retVal
 
     case UNSET_LISTENER:
-      pathArr = pathToArr(path)
-      retVal = state.deleteIn(['data', ...pathArr])
-      retVal = retVal.deleteIn(['timestamp', pathArr.join(paramSplitChar)])
-      retVal = retVal.deleteIn(['requesting', pathArr.join(paramSplitChar)])
-      retVal = retVal.deleteIn(['requested', pathArr.join(paramSplitChar)])
+      // pathArr = pathToArr(path)
+      // retVal = state.deleteIn(['data', ...pathArr])
+      // retVal = retVal.deleteIn(['timestamp', pathArr.join(paramSplitChar)])
+      // retVal = retVal.deleteIn(['requesting', pathArr.join(paramSplitChar)])
+      // retVal = retVal.deleteIn(['requested', pathArr.join(paramSplitChar)])
 
       return retVal
 
