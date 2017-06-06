@@ -1,4 +1,10 @@
-import { forEach, size } from 'lodash'
+import {
+  forEach,
+  size,
+  isObject,
+  every,
+  values
+} from 'lodash'
 import { actionTypes } from '../constants'
 import { promisesForPopulate } from '../utils/populate'
 import {
@@ -85,7 +91,7 @@ export const watchEvent = (firebase, dispatch, { type, path, populates, queryPar
       return q.once('value')
         .then(snapshot => {
           if (snapshot.val() !== null) {
-            const resultPath = storeAs || (e === 'value') ? p : `${p}/${snapshot.key}`
+            const resultPath = (e === 'value') ? p : `${p}/${snapshot.key}`
             promisesForPopulate(firebase, snapshot.key, snapshot.val(), populates)
               .then((results) => {
                 forEach(results, (result, path) => {
@@ -100,12 +106,22 @@ export const watchEvent = (firebase, dispatch, { type, path, populates, queryPar
                 })
                 dispatch({
                   type: SET,
-                  path: storeAs || resultPath,
+                  path: resultPath,
                   data: snapshot.val(),
                   timestamp: Date.now(),
                   requesting: false,
                   requested: true
                 })
+                if (storeAs) {
+                  dispatch({
+                    type: SET,
+                    path: storeAs,
+                    data: snapshot.val(),
+                    timestamp: Date.now(),
+                    requesting: false,
+                    requested: true
+                  })
+                }
               })
           }
           return snapshot
@@ -126,24 +142,40 @@ export const watchEvent = (firebase, dispatch, { type, path, populates, queryPar
       // Dispatch standard event if no populates exists
       if (!populates) {
         const ordered = []
+        const hasObjectChildren = every(isObject, values(snapshot.val()))
         // preserve order of children under ordered
-        if (e === 'child_added') {
-          ordered.push({ key: snapshot.key, ...snapshot.val() })
+        if (e === 'child_added' || hasObjectChildren) {
+          ordered.push({
+            key: snapshot.key,
+            ...snapshot.val()
+          })
         } else {
           snapshot.forEach((child) => {
             ordered.push({ key: child.key, ...child.val() })
           })
         }
 
-        return dispatch({
+        const res = dispatch({
           type: SET,
-          path: storeAs || resultPath,
+          path: resultPath,
           ordered: size(ordered) ? ordered : undefined,
           data,
           timestamp: Date.now(),
           requesting: false,
           requested: true
         })
+        if (storeAs) {
+          dispatch({
+            type: SET,
+            path: storeAs,
+            ordered: size(ordered) ? ordered : undefined,
+            data,
+            timestamp: Date.now(),
+            requesting: false,
+            requested: true
+          })
+        }
+        return res
       }
 
       // TODO: Allow setting of unpopulated data before starting population through config
@@ -164,12 +196,22 @@ export const watchEvent = (firebase, dispatch, { type, path, populates, queryPar
           })
           dispatch({
             type: SET,
-            path: storeAs || resultPath,
+            path: resultPath,
             data,
             timestamp: Date.now(),
             requesting: false,
             requested: true
           })
+          if (storeAs) {
+            dispatch({
+              type: SET,
+              path: storeAs,
+              data,
+              timestamp: Date.now(),
+              requesting: false,
+              requested: true
+            })
+          }
         })
     }, (err) => {
       dispatch({
