@@ -1,5 +1,5 @@
 import { fromJS } from 'immutable'
-import { dropRight } from 'lodash'
+import { dropRight, isNil } from 'lodash'
 import { actionTypes, paramSplitChar } from './constants'
 
 const {
@@ -76,23 +76,23 @@ export default (state = initialState, action = {}) => {
         retVal = state // start with state
       }
 
-      retVal = (data !== undefined)
+      retVal = (!isNil(data))
         ? retVal.mergeIn(['data', ...pathArr], fromJS(data))
         : retVal.deleteIn(['data', ...pathArr])
 
-      retVal = (ordered !== undefined)
+      retVal = (!isNil(ordered))
         ? retVal.mergeIn(['ordered', ...pathArr], fromJS(ordered))
         : retVal.deleteIn(['ordered', ...pathArr])
 
-      retVal = (timestamp !== undefined)
+      retVal = (!isNil(timestamp))
         ? retVal.setIn(['timestamp', pathArr.join(paramSplitChar)], fromJS(timestamp))
         : retVal.deleteIn(['timestamp', pathArr.join(paramSplitChar)])
 
-      retVal = (requesting !== undefined)
+      retVal = (!isNil(requesting))
         ? retVal.setIn(['requesting', pathArr.join(paramSplitChar)], fromJS(requesting))
         : retVal.deleteIn(['requesting', pathArr.join(paramSplitChar)])
 
-      retVal = (requested !== undefined)
+      retVal = (!isNil(requested))
         ? retVal.setIn(['requested', pathArr.join(paramSplitChar)], fromJS(requested))
         : retVal.deleteIn(['requested', pathArr.join(paramSplitChar)])
 
