@@ -106,22 +106,12 @@ export const watchEvent = (firebase, dispatch, { type, path, populates, queryPar
                 })
                 dispatch({
                   type: SET,
-                  path: resultPath,
+                  path: storeAs || resultPath,
                   data: snapshot.val(),
                   timestamp: Date.now(),
                   requesting: false,
                   requested: true
                 })
-                if (storeAs) {
-                  dispatch({
-                    type: SET,
-                    path: storeAs,
-                    data: snapshot.val(),
-                    timestamp: Date.now(),
-                    requesting: false,
-                    requested: true
-                  })
-                }
               })
           }
           return snapshot
@@ -157,24 +147,13 @@ export const watchEvent = (firebase, dispatch, { type, path, populates, queryPar
 
         const res = dispatch({
           type: SET,
-          path: resultPath,
+          path: storeAs || resultPath,
           ordered: size(ordered) ? ordered : undefined,
           data,
           timestamp: Date.now(),
           requesting: false,
           requested: true
         })
-        if (storeAs) {
-          dispatch({
-            type: SET,
-            path: storeAs,
-            ordered: size(ordered) ? ordered : undefined,
-            data,
-            timestamp: Date.now(),
-            requesting: false,
-            requested: true
-          })
-        }
         return res
       }
 
@@ -196,22 +175,12 @@ export const watchEvent = (firebase, dispatch, { type, path, populates, queryPar
           })
           dispatch({
             type: SET,
-            path: resultPath,
+            path: storeAs || resultPath,
             data,
             timestamp: Date.now(),
             requesting: false,
             requested: true
           })
-          if (storeAs) {
-            dispatch({
-              type: SET,
-              path: storeAs,
-              data,
-              timestamp: Date.now(),
-              requesting: false,
-              requested: true
-            })
-          }
         })
     }, (err) => {
       dispatch({
